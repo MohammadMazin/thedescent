@@ -1,0 +1,372 @@
+package GameState;
+
+import Main.GamePanel;
+import TileMap.*;
+import Entity.*;
+import Entity.Enemies.*;
+import Audio.AudioPlayer;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+
+public class LevelFinalB extends GameState {
+	
+	private TileMap tileMap;
+	private Background bg1,bg2,bg3;
+	
+	private DarkEnergy de;
+	
+	private Player player;
+	private String[] options = {
+			"JUMP!!",
+			
+		};
+	private Color titleColor;
+	private Font titleFont;
+	
+	private ArrayList<Explosion> explosions;
+	private ArrayList<DarkEnergy> darkEn;
+	private ArrayList<Enemy> crystals;
+	
+	private Crystal c;
+	private Demon demon;
+
+	private boolean fin;
+	private boolean playRoar , playedOnce;
+	
+	private HUD hud;
+	
+	private AudioPlayer bgMusic, wings, roar, itemPickup;
+	
+	private HealthPack hp1,hp2;
+	private LivesPack lp;
+	
+	public LevelFinalB(GameStateManager gsm) {
+		
+		super(gsm);              //calling super class
+		
+		titleColor = new Color(128, 0, 0);
+		titleFont = new Font(
+				"Century Gothic",
+				Font.BOLD,
+				11);
+		init();
+	}
+	
+	public void init() {
+		
+		tileMap = new TileMap(30);
+		tileMap.loadTiles("/Tilesets/BossTileset.png");
+		tileMap.loadMap("/Maps/FinalChaseLevel.map");
+		tileMap.setPosition(0, 0);
+		tileMap.setTween(1);
+		
+	    fin = false;
+		
+		bg1 = new Background("/Backgrounds/finalbg1.png", 0.1);
+		bg2 = new Background("/Backgrounds/finalbg2.png", 0.2);
+		bg3 = new Background("/Backgrounds/finalbg3.png", 0.3);
+		
+		player = new Player(tileMap);
+		player.setPosition(60,610);
+		player.setFiring(true);
+		
+		de = new DarkEnergy(tileMap, true);
+		
+		demon = new Demon(tileMap);
+		demon.setPosition(300, 603);
+		
+	
+		explosions = new ArrayList<Explosion>();
+		darkEn = new ArrayList<DarkEnergy>();
+		
+		
+		
+		hud = new HUD(player);
+		
+		bgMusic = new AudioPlayer("/Music/FinalMusic.mp3");
+		roar = new AudioPlayer("/SFX/DemonRoarStart.mp3");
+		wings = new AudioPlayer("/SFX/FlappingWings.mp3");
+		itemPickup = new AudioPlayer("/SFX/menuselect.mp3");
+		
+		bgMusic.play();
+		wings.play();
+		
+		playRoar = true;
+		
+		hp1 = new HealthPack(tileMap);
+		hp2 = new HealthPack(tileMap);
+		lp = new LivesPack(tileMap);
+		
+		hp1.setPosition(1738, 492);
+		hp2.setPosition(3958, 707);
+		lp.setPosition(2464, 705);
+		
+		
+		
+		populateEnemies();
+		
+		player.setHealth(gsm.health);
+		player.setLives(gsm.lives);
+
+		
+	}
+        
+    private void populateEnemies() {
+    	
+    	   	
+		   crystals = new ArrayList<Enemy>();
+			
+		   //Adding Crystal Object to ArrayList
+			c = new Crystal(tileMap);
+			c.setPosition(4980,510);
+			c.setHealth(100);
+			crystals.add(c);
+			
+	}
+
+	
+    
+    
+	public void update() {
+		
+		//Updating Collectibles
+		lp.update();
+	    if(player.intersects(lp)) {
+	    	lp.setPosition(0, 0);
+	    	player.setLives(player.getLives() + 1);
+	    	itemPickup.play();
+	    }
+		
+	  //Updating Collectibles
+		hp1.update();
+	    if(player.intersects(hp1)) {
+	    	hp1.setPosition(0, 0);
+	    	player.setHealth(5);
+	    	itemPickup.play();
+	    }
+	    
+	  //Updating Collectibles
+		hp2.update();
+	    if(player.intersects(hp2)) {
+	    	hp2.setPosition(0, 0);
+	    	player.setHealth(5);
+	    	itemPickup.play();
+	    }
+		
+		
+		if(c.getHealth() < 50)
+			roar.play();
+		
+		//Executes when health of crystal equals 0
+		if(c.isBroken()) {
+			
+			fin = true;
+			player.setHealth(5);
+			player.setFiring(false);
+			bgMusic.stop();
+			
+			wings.stop();
+						
+		}
+			
+	
+	//Updates Position of Demon
+		demon.setPosition(player.getx() + 230, player.gety());
+    //Sets new Position of Demon	
+	  if(player.getx() > 4800)	
+	    demon.setPosition(5130, player.gety());
+		
+		
+	if(player.dyingCondition(0, 6000, 843) || player.getHealth() == 0) {
+	
+		if(player.getLives() == 1) {
+			bgMusic.close();
+			gsm.setState(gsm.DEATHSTATE);
+		}
+		
+
+		
+		player.setHealth(5);
+		player.setLives(player.getLives() - 1);
+		player.setPosition(60,610);
+		
+		hp1.setPosition(1738, 492);
+		hp2.setPosition(3958, 707);
+		lp.setPosition(2464, 705);
+	}
+	
+	if(playRoar) {
+		playRoar = false;
+          roar.play();
+	}
+        
+	//Update Audio
+	    wings.loop();
+	    
+    //Update DarkEnergy   
+		de.update();
+		
+	//Update Demon and Have it Shoot	
+		demon.setClose(true);
+		demon.update();
+		
+	//Updating ArrayList as long as size of ArrayList isn't zero
+		if(crystals.size() != 0) {
+		player.checkAttack(crystals);
+		
+			Enemy e = crystals.get(0);
+			e.update();
+			if(e.isDead()) {
+				crystals.remove(0);
+			}
+		}
+
+		//update music
+		bgMusic.loop();
+		
+		
+		// update player
+		player.update();
+	    //camera Movement
+		tileMap.setPosition(
+			GamePanel.WIDTH / 2 - player.getx(),
+			GamePanel.HEIGHT / 2 - player.gety()
+		);
+		
+		// set background
+		bg1.setPosition(tileMap.getx(), tileMap.gety());
+		bg2.setPosition(tileMap.getx(), tileMap.gety());
+		bg3.setPosition(tileMap.getx(), tileMap.gety());
+		
+	//executes level changing	
+		if(fin) {
+			bgMusic.stop();
+			roar.play();
+			wings.stop();
+			gsm.setState(gsm.CREDITSTATE);
+		}
+		
+	}
+	
+	public void draw(Graphics2D g) {
+		
+		if(fin) {
+			g.setColor(new Color(255, 255, 255));
+	     	g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
+	     	
+		}
+		
+		else {
+		
+			
+	   //Setting Font Style
+		g.setColor(titleColor);
+		g.setFont(titleFont);
+		
+		//Draw DarkEnergy
+		de.draw(g);
+		
+		// draw bg
+		bg1.draw(g);
+		bg2.draw(g);
+		bg3.draw(g);
+		
+		//draw Collectibles
+		hp1.draw(g);
+		hp2.draw(g);
+		lp.draw(g);
+				
+				
+		//draw crystals
+			
+				
+		// draw tilemap
+		tileMap.draw(g);
+		
+		// draw enemies
+		
+		demon.draw(g);
+		
+		demon.checkFire(player);
+		
+		// draw player
+				player.draw(g);
+		
+		// draw explosions
+		for(int i = 0; i < explosions.size(); i++) {
+			explosions.get(i).setMapPosition(
+				(int)tileMap.getx(), (int)tileMap.gety());
+			explosions.get(i).draw(g);
+		}
+		
+		// draw hud
+		hud.draw(g);
+		
+	
+		
+		
+		//draw text
+		if((player.getx() > 4560 && player.getx() < 4620)) {
+			g.setFont(titleFont);
+			
+				
+				g.setColor(Color.BLACK);
+				g.drawString(options[0], 175, 75 + 1 * 15);
+			    
+			
+		
+		}
+		
+		if(crystals.size() != 0) {
+			crystals.get(0).draw(g);
+		}
+	
+		
+		
+		}
+	}
+	
+	public void keyPressed(int k) {
+		if(k == KeyEvent.VK_LEFT) player.setLeft(true);
+		if(k == KeyEvent.VK_RIGHT) player.setRight(true);
+		if(k == KeyEvent.VK_UP) player.setUp(true);
+		if(k == KeyEvent.VK_DOWN) player.setDown(true);
+		if(k == KeyEvent.VK_W) player.setJumping(true);
+		if(k == KeyEvent.VK_E) player.setGliding(true);
+		if(k == KeyEvent.VK_R) player.setScratching();
+		if(k == KeyEvent.VK_F) player.setFiring();
+		if(k == KeyEvent.VK_ESCAPE) gsm.setPaused(true);
+		if(gsm.paused) {
+			if(k == KeyEvent.VK_ENTER) gsm.setPaused(false);
+			if(k == KeyEvent.VK_M) {
+				bgMusic.stop();
+				gsm.setPaused(false);
+				gsm.setState(gsm.MENUSTATE);
+			}
+		}
+	}
+	
+	public void keyReleased(int k) {
+		if(k == KeyEvent.VK_LEFT) player.setLeft(false);
+		if(k == KeyEvent.VK_RIGHT) player.setRight(false);
+		if(k == KeyEvent.VK_UP) player.setUp(false);
+		if(k == KeyEvent.VK_DOWN) player.setDown(false);
+		if(k == KeyEvent.VK_W) player.setJumping(false);
+		if(k == KeyEvent.VK_E) player.setGliding(false);
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+

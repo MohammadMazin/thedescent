@@ -1,0 +1,62 @@
+package GameState;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+
+import Handler.Keys;
+import Main.GamePanel;
+
+public class PauseState extends GameState {
+	
+	private Font font , font2;
+	
+	
+	public PauseState(GameStateManager gsm) {
+		
+		super(gsm);        //calls the superclass
+		
+		
+		
+		// fonts
+		font = new Font("Century Gothic", Font.BOLD, 18);
+		font2 = new Font("Century Gothic", Font.PLAIN, 14);
+		
+	}
+	
+	public void init() {}
+	
+	public void update() {
+		
+		//Checks key inputs from user
+		handleInput();
+	}
+	
+	public void draw(Graphics2D g) {
+		g.setColor(new Color(0, 0, 0, 15));
+		g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
+		g.setColor(new Color(255, 255, 255, 120));
+		g.setFont(font);
+		g.drawString("Game Paused", 40, 90);
+		g.setFont(font2);
+		g.drawString("Press 'ENTER' To Continue", 40, 120);
+		g.drawString("Press 'M' To Go To Main Menu", 40, 140);
+	}
+	
+	public void handleInput() {
+		
+		//Keys that can be pressed to interact with the game when it is paused
+		if(Keys.isPressed(Keys.ESCAPE)) gsm.setPaused(false);
+		if(Keys.isPressed(Keys.BUTTON1)) {
+			gsm.setPaused(false);
+			gsm.setState(GameStateManager.MENUSTATE);
+		}
+	}
+
+	@Override
+	public void keyPressed(int k) {}
+
+	@Override
+	public void keyReleased(int k) {}
+
+}

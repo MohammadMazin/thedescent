@@ -1,0 +1,160 @@
+package GameState;
+
+import TileMap.Background;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+
+import Audio.AudioPlayer;
+
+public class MenuState extends GameState {
+	
+	private Background bg, bgHelp;
+	private Background bgTree;
+	private Background box;
+	
+	private int currentChoice = 0;
+	private String[] options = {
+		"Start",
+		"Help",
+		"Quit"
+	};
+	
+	private Color titleColor;
+	private Font titleFont;
+	
+	private Font font;
+	
+	private AudioPlayer bgMusic;
+	private AudioPlayer menuSelect, menuChoice;
+	
+	private boolean help;
+	
+	public MenuState(GameStateManager gsm) {
+		
+		super(gsm);           //calling superclass
+		
+		try {
+			
+			bg = new Background("/Backgrounds/menubg.jpg", 1);
+			bgHelp = new Background("/Backgrounds/help.png", 1);
+			bgTree = new Background("/Backgrounds/tree.png", 1);
+			box = new Background("/Backgrounds/box.png", 1);
+			
+			bg.setVector(-0.5, 0);
+			
+			titleColor = new Color(255, 255, 255);
+			titleFont = new Font(
+					"Century Gothic",
+					Font.PLAIN,
+					28);
+			
+			font = new Font("Arial", Font.PLAIN, 12);
+			
+			bgMusic = new AudioPlayer("/Music/menu_music.mp3");
+			menuSelect = new AudioPlayer("/SFX/menuoption.mp3");
+			menuChoice = new AudioPlayer("/SFX/menuselect.mp3");
+			bgMusic.play();
+			
+			help = false;
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void init() {
+		
+		
+	}
+	
+	public void update() {
+		
+		//Updating bg
+		bg.update();
+	}
+	
+	public void draw(Graphics2D g) {
+		
+		// draw bg
+		bg.draw(g);
+		bgTree.draw(g);
+		
+		
+		// draw title
+		if(!help) {
+		box.draw(g);	
+		g.setColor(titleColor);
+		g.setFont(titleFont);
+		g.drawString("The Descent", 25, 70);
+		
+		// draw menu options
+		g.setFont(font);
+		for(int i = 0; i < options.length; i++) {
+			if(i == currentChoice) {
+				g.setColor(Color.WHITE);
+			}
+			else {
+				g.setColor(Color.BLUE);
+			}
+			g.drawString(options[i], 25, 140 + i * 15);
+		}
+		}
+		else {s
+			bgHelp.draw(g);
+		}
+	}
+	
+	private void select() {
+		if(currentChoice == 0) {
+			gsm.setState(GameStateManager.STORYSTATE);
+			bgMusic.stop();
+			
+		}
+		if(currentChoice == 1) {
+			help = true;
+		}
+		if(currentChoice == 2) {
+			System.exit(0);
+		}
+	}
+	
+	public void keyPressed(int k) {
+		if(!help) {
+		if(k == KeyEvent.VK_ENTER){
+			menuChoice.play();
+			select();
+		}
+		if(k == KeyEvent.VK_UP) {
+			menuSelect.play();
+			currentChoice--;
+			if(currentChoice == -1) {
+				currentChoice = options.length - 1;
+			}
+		}
+		if(k == KeyEvent.VK_DOWN) {
+			menuSelect.play();
+			currentChoice++;
+			if(currentChoice == options.length) {
+				currentChoice = 0;
+			}
+		}
+		}
+		else
+			if(k == KeyEvent.VK_ESCAPE) {help = false;}
+	}
+	public void keyReleased(int k) {}
+	
+}
+
+
+
+
+
+
+
+
+
+

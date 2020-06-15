@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;Artifact&apos;" deleteContents="true" description="Delete resource &apos;Artifact&apos;" element1="/Artifact" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1590728837841"/>&#x0A;<refactoring comment="Delete 7 resources" deleteContents="false" description="Delete 7 resources" element1="/Shabalsb/.settings" element2="/Shabalsb/bin" element3="/Shabalsb/Libs" element4="/Shabalsb/Resources" element5="/Shabalsb/src" element6="/Shabalsb/.classpath" element7="/Shabalsb/.project" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="7" stamp="1590862920309"/>
+</session>

@@ -1,0 +1,142 @@
+package GameState;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+
+import Main.GamePanel;
+import TileMap.Background;
+import TileMap.TileMap;
+
+public class StoryState extends GameState{
+
+	
+	
+	
+	private String[] options = {
+			"In the valley of Karawhatram,",
+			"",////////
+			"Darkness has come to rule over ",
+			"What was once a peaceful land.",
+			"",/////////
+			"The Demon's army has driven",
+			"the citizens out of their homes",
+			"",////////
+			"All hope would be lost",
+			"were it not for one person's",
+			"desire to lead the people to",
+			"their formal glory",
+			"",////////
+			"To defeat the beast,",
+			"save the people",
+			"and lead them "
+		};
+	private Color titleColor;
+	private Font titleFont;
+	
+	private int time, count, textx;
+	
+	public StoryState(GameStateManager gsm2) {
+		super(gsm2);
+		
+		titleColor = new Color(128, 0, 0);
+		titleFont = new Font(
+				"Century Gothic",
+				Font.BOLD,
+				11);
+		
+		time = 0;
+		textx = 80;
+		
+		init();
+	}
+
+	@Override
+	public void init() {}
+
+	@Override
+	public void update() {
+		
+		if(time > 300) {
+			time = 0;
+			count++;
+		}
+		time++;
+		
+		//Level Changing Condition
+	if(count == 5)
+		gsm.setState(gsm.LEVEL1STATE);
+		
+	}
+
+	@Override
+	public void draw(Graphics2D g) {
+		if(count == 0) {
+			g.setColor(new Color(0, 0, 0));
+	     	g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
+			g.setFont(titleFont);
+			g.setColor(Color.WHITE);
+			g.drawString(options[0], textx, 75 + 1 * 15);	
+		}
+		else if(count == 1){
+			    
+		     	g.setColor(new Color(0, 0, 0));
+		     	g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
+		     	
+				g.setFont(titleFont);
+				g.setColor(Color.WHITE);
+				g.drawString(options[2], textx, 75 + 1 * 15);	
+				g.drawString(options[3], textx, 75 + 2 * 15);	
+				
+		}
+		else if(count == 2){
+		    
+	     	g.setColor(new Color(0, 0, 0));
+	     	g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
+	     	
+			g.setFont(titleFont);
+			g.setColor(Color.WHITE);
+			g.drawString(options[5], textx, 75 + 1 * 15);	
+			g.drawString(options[6], textx, 75 + 2 * 15);	
+			
+	}
+		    else if(count == 3){
+		    
+	     	g.setColor(new Color(0, 0, 0));
+	     	g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
+	     	
+			g.setFont(titleFont);
+			g.setColor(Color.WHITE);
+			g.drawString(options[8], textx, 75 + 1 * 15);	
+			g.drawString(options[9], textx, 75 + 2 * 15);	
+			g.drawString(options[10], textx, 75 + 3 * 15);	
+			g.drawString(options[11], textx, 75 + 4 * 15);	
+			
+	}
+       else if(count == 4){
+		    
+	     	g.setColor(new Color(0, 0, 0));
+	     	g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
+	     	
+			g.setFont(titleFont);
+			g.setColor(Color.WHITE);
+			g.drawString(options[13], textx, 75 + 1 * 15);	
+			g.drawString(options[14], textx, 75 + 2 * 15);	
+			g.drawString(options[15], textx, 75 + 3 * 15);	
+			
+			
+	    }
+		
+	}
+
+	@Override
+	public void keyPressed(int k) {
+		if(k == KeyEvent.VK_ENTER) count++; time = 0;
+		
+	}
+
+	@Override
+	public void keyReleased(int k) {}
+
+}

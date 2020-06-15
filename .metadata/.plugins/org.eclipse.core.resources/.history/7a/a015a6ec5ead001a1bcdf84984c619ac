@@ -1,0 +1,88 @@
+package GameState;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import Entity.*;
+import TileMap.Background;
+public class NoticeState extends  GameState {
+	
+	Player player;
+	private Background box;
+
+	
+	private Color titleColor;
+	private Font titleFont;
+	
+	private Font font;
+						
+	public NoticeState(GameStateManager gsm) {
+		
+		super(gsm);           //calls the superclass
+        
+		try {
+			
+			
+			box=new Background("/Backgrounds/grassbg1.gif",1);
+			titleColor = new Color(128, 0, 0);
+			titleFont = new Font(
+					"Century Gothic",
+					Font.PLAIN,
+					28);
+			
+			font = new Font("Arial", Font.PLAIN, 12);
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+
+	
+	public void init() {}
+
+	
+	public void update() {
+		box.update();
+	}
+
+	
+	public void draw(Graphics2D g) {
+		
+		box.draw(g);
+		// draw title
+		g.setColor(titleColor);
+		g.setFont(titleFont);
+		g.drawString("WRONG DOOR", 80, 70);
+		g.setFont(font);
+		g.drawString("Wrong Door Press Enter To Return", 40,140);
+		g.drawString("You Have "+gsm.getCount()+"Chances left", 50, 160);
+		g.drawString("P.S The Enemies will Respawn on Return",40,180);
+		
+		
+	}
+	
+	
+	private void select() {
+		if(gsm.getCount()==0)
+		{   //executes if player runs out of tries
+			GameStateManager.setGenpos(true);
+		   			gsm.setState(GameStateManager.DEATHSTATE);
+			}
+		else {
+			gsm.setState(GameStateManager.LEVEL4B);
+		}}
+
+	public void keyPressed(int k) {
+		if(k == KeyEvent.VK_ENTER){
+			select();
+		}
+		
+	}
+
+
+	public void keyReleased(int k) {}
+	
+}

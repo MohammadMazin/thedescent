@@ -1,0 +1,218 @@
+package Entity.Enemies;
+
+import Entity.*;
+import TileMap.TileMap;
+
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.awt.Graphics2D;
+
+import javax.imageio.ImageIO;
+
+import Audio.AudioPlayer;
+
+public class Demon extends Enemy {
+	
+	private BufferedImage[] sprites;           //stores sprite sheets
+	private HashMap<String, AudioPlayer> sfx;  //stores audio files
+	private ArrayList<DarkEnergy> darkEn;      //stores DarkEnergy bullets
+		
+	private long time;                         //variable used as a timer
+	
+	private boolean firing;
+	private boolean close;
+	
+	
+	public Demon(TileMap tm) {
+		
+		super(tm);                            //calls the super class
+		
+		maxSpeed = 0.3;
+		maxFallSpeed = 10.0;
+		
+		//sprite dimensions
+		width = 180;
+		height = 150;
+		
+		//collision box dimensions
+		cwidth = 80;
+		cheight = 150;
+		
+
+		
+		health = maxHealth = 10000;
+		damage = 1;
+		
+		// load sprites
+		try {
+			
+			BufferedImage spritesheet = ImageIO.read(
+				getClass().getResourceAsStream(
+					"/Sprites/Enemies/Demon.png"
+				)
+			);
+			
+			sprites = new BufferedImage[3];
+			for(int i = 0; i < sprites.length; i++) {
+				sprites[i] = spritesheet.getSubimage(
+					i * width,
+					0,
+					width,
+					height
+				);
+			}
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		//Initializing HashMap
+		sfx = new HashMap<String, AudioPlayer>();
+		sfx.put("death", new AudioPlayer("/SFX/enemyhit.mp3"));
+		
+		//setting animation criteria
+		animation = new Animation();
+		animation.setFrames(sprites);
+		animation.setDelay(300);
+		
+		
+		darkEn = new ArrayList<DarkEnergy>();
+		
+		right = true;
+		facingRight = false;
+		 
+		
+	}
+	
+	public boolean isRight() {return right;}
+	public void setLeft(boolean b) {right = !b; facingRight = !b;}
+    
+	public void setFiring() {firing = true;}
+	public boolean getFiring() { return firing;}
+	public  void playerClose(boolean b) {close = b;}
+	public int getHealth() {return health;}
+	public void setY(int y) {this.y = y;}
+	
+	private void getNextPosition() {
+			
+		// movement
+		if(!right) {
+			dx -= moveSpeed;
+			if(dx < -maxSpeed) {
+				dx = -maxSpeed;
+			}
+		}
+		
+		// falling
+		if(falling) {
+			dy += fallSpeed;
+		}
+		
+	}
+	
+	public void update() {
+			
+		if(close) {
+			enemyAttack();
+		}
+		
+		time++;
+			
+		//enemy attack 
+		for(int i = 0; i  < darkEn.size(); i++) {
+			darkEn.get(i).update();
+			if(darkEn.get(i).shouldRemove()) {
+				darkEn.remove(i);
+				i--;
+			}
+		}
+				
+		
+		// update position
+		getNextPosition();
+		checkTileMapCollision();
+		setPosition(xtemp, ytemp);
+		
+		//check voice
+		if(health == 0)
+			sfx.get("death").play();
+			
+		// update animation
+		animation.update();
+		
+		
+		
+	}
+	
+    	public void checkFire(Player p) {
+		
+
+		// Dark Energy
+		for(int j = 0; j < darkEn.size(); j++) {
+		
+			if(p.getx() - darkEn.get(j).getx() < 20 && darkEn.get(j).getx() - p.getx() < 20 &&
+			   p.gety() - darkEn.get(j).gety() < 20 && darkEn.get(j).gety() - p.gety() < 20) {
+				
+				p.hit(1);
+				darkEn.remove(j);
+				
+		     }
+		}
+					
+					
+	}
+	
+	public void enemyAttack() {
+		
+			if(time < 85) return;
+				DarkEnergy fb1 = new DarkEnergy(tileMap, facingRight);
+				DarkEnergy fb2 = new DarkEnergy(tileMap, facingRight);
+				DarkEnergy fb3 = new DarkEnergy(tileMap, facingRight);
+				fb1.setPosition(x + 10, y + 20);
+				fb2.setPosition(x + 10, y - 00);
+				fb3.setPosition(x + 10, y - 20);
+				darkEn.add(fb1);
+				darkEn.add(fb2);
+				darkEn.add(fb3);
+				time = 0;
+	
+				
+	}
+	
+	public void setClose(boolean b) {close = true;}
+	
+	
+	
+
+	
+	public void draw(Graphics2D g) {
+		
+		//if(notOnScreen()) return;
+		
+		setMapPosition();
+		
+		// draw fireballs
+				for(int i = 0; i < darkEn.size(); i++) {
+					darkEn.get(i).draw(g);
+				}
+		
+		super.draw(g);
+		
+		
+		
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
